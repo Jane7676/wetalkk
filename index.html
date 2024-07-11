@@ -1,0 +1,104 @@
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Word Animation</title>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/p5.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        // Your JavaScript code goes here
+        let words = [];
+
+        let wordList = ["ךמצע", "תא", "אונשלו", "רקובב", "ררועתהל", "םדרהל", "םלעהל", "חוכשלו", "חורבל"];
+
+        let sentence = "ההההההההההההההההא ךמצע תא אונשלו רקובב ררועתהל םדרהל םלעהל,חוכשלו חורבל";
+
+        let scrollPosition = 0;
+
+        let numRepeats = 2000; // Number of times each word should be repeated
+
+        let startRadius = 800;
+
+        let customFont;
+
+        function preload() {
+            // Load your custom font
+            customFont = loadFont('myfont.otf', fontLoaded); // Update the path to your font file
+        }
+
+        function fontLoaded(font) {
+            sixty = font;
+        }
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            textAlign(CENTER, CENTER);
+            textSize(6);
+            angleMode(DEGREES);
+            textFont(customFont); // Set the custom font
+
+            // Generate initial positions for words
+            for (let j = 0; j < numRepeats; j++) {
+                for (let i = 0; i < wordList.length; i++) {
+                    let angle = random(360);
+                    let distance = random(startRadius);
+                    words.push({ char: wordList[i], angle: angle, distance: distance, initialDistance: distance, speedX: random(-2, 2), speedY: random(-2, 2) });
+                }
+            }
+        }
+
+        function draw() {
+            background(255);
+            translate(width / 2, height / 2);
+            let maxDistance = dist(0, 0, width / 2, height / 2);
+
+            // Draw animated words
+            for (let i = 0; i < words.length; i++) {
+                let word = words[i];
+                let scrollFactor = map(scrollPosition, 0, height, 0, maxDistance);
+                let x = cos(word.angle) * (word.distance + scrollFactor) + word.speedX * scrollPosition * 0.01;
+                let y = sin(word.angle) * (word.distance + scrollFactor) + word.speedY * scrollPosition * 0.01;
+
+                if (abs(x) > width / 2 || abs(y) > height / 2) {
+                    continue; // Skip drawing words that are outside the canvas
+                }
+
+                fill(0);
+                text(word.char, x, y);
+            }
+
+            // Calculate text size and position for the sentence
+            if (scrollPosition >= height) {
+                let textSizeMultiplier = map(scrollPosition, height, height * 2, 20, 40); // Increase textSize as scrollPosition grows
+                let alphaValue = map(scrollPosition, height, height * 2, 255, 0);
+
+                textSize(textSizeMultiplier);
+                fill(0, alphaValue);
+                textAlign(CENTER, CENTER);
+                text(sentence, 0, 0);
+            }
+        }
+
+        function mouseWheel(event) {
+            scrollPosition += event.delta;
+            scrollPosition = constrain(scrollPosition, 0, height * 2); // Adjust maximum scroll position
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+    </script>
+</body>
+</html>
